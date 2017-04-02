@@ -1,0 +1,6 @@
+vendor/
+cache/
+logs/
+web/
+.htaccess
+composer.lock
