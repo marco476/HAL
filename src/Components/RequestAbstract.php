@@ -1,7 +1,7 @@
 <?php
-namespace Helper;
+namespace Components;
 
-class RequestMethodHelper
+abstract class RequestAbstract
 {
     const GET = 'GET';
     const POST = 'POST';
