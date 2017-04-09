@@ -1,18 +1,23 @@
 <?php
-namespace Components;
+namespace Request;
 
-class Request extends RequestAbstract
+class Request
 {
     //Request method processable are GET and POST
     protected $requestMethodProcessable = array(self::GET, self::POST);
 
+    static protected $istance = null;
     protected $uri;
     protected $requestMethod;
 
-    public function __construct()
+    public function getIstance()
     {
-        $this->uri = !empty($_SERVER['REQUEST_URI']) ? strtolower($_SERVER['REQUEST_URI']) : '/';
-        $this->requestMethod = !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : RequestMethodHelper::GET;
+        if (self::$istance === null) {
+            self::$istance = new Request();
+            self::$istance->initialize();
+        }
+
+        return self::$istance;
     }
 
     public function getUri()
@@ -85,6 +90,12 @@ class Request extends RequestAbstract
         }
 
         return $value;
+    }
+
+    protected function initialize()
+    {
+        $this->uri = !empty($_SERVER['REQUEST_URI']) ? strtolower($_SERVER['REQUEST_URI']) : '/';
+        $this->requestMethod = !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : RequestMethodHelper::GET;
     }
 
     protected function singleParameter($name)
