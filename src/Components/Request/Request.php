@@ -1,15 +1,16 @@
 <?php
-namespace Request;
+namespace Components\Request;
 
-class Request
+class Request extends RequestAbstract
 {
     //Request method processable are GET and POST
     protected $requestMethodProcessable = array(self::GET, self::POST);
 
     static protected $istance = null;
-    protected $uri;
-    protected $requestMethod;
+    protected $uri = null;
+    protected $requestMethod = null;
 
+    //Singleton
     public function getIstance()
     {
         if (self::$istance === null) {
@@ -95,7 +96,7 @@ class Request
     protected function initialize()
     {
         $this->uri = !empty($_SERVER['REQUEST_URI']) ? strtolower($_SERVER['REQUEST_URI']) : '/';
-        $this->requestMethod = !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : RequestMethodHelper::GET;
+        $this->requestMethod = !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : self::GET;
     }
 
     protected function singleParameter($name)
