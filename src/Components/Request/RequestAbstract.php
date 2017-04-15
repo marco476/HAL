@@ -1,6 +1,10 @@
 <?php
 namespace Components\Request;
 
+/**
+ * Class RequestAbstract
+ * @package Components\Request
+ */
 abstract class RequestAbstract
 {
     const GET = 'GET';
