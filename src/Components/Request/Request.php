@@ -1,4 +1,5 @@
 <?php
+
 namespace Components\Request;
 
 /**
@@ -13,6 +14,13 @@ class Request extends RequestAbstract
      * @var array
      */
     protected $requestMethodProcessable = array(self::GET, self::POST);
+
+    /**
+     * List request headers by client
+     *
+     * @var array
+     */
+    protected $headersList = array();
 
     /**
      * @var null
@@ -42,6 +50,16 @@ class Request extends RequestAbstract
         }
 
         return self::$istance;
+    }
+
+    /**
+     * Iniziatize method
+     */
+    protected function initialize()
+    {
+        $this->uri = !empty($_SERVER['REQUEST_URI']) ? strtolower($_SERVER['REQUEST_URI']) : '/';
+        $this->requestMethod = !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : self::GET;
+        $this->headersList = $this->clientHeaders();
     }
 
     /**
@@ -148,15 +166,6 @@ class Request extends RequestAbstract
     }
 
     /**
-     * Iniziatize method
-     */
-    protected function initialize()
-    {
-        $this->uri = !empty($_SERVER['REQUEST_URI']) ? strtolower($_SERVER['REQUEST_URI']) : '/';
-        $this->requestMethod = !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : self::GET;
-    }
-
-    /**
      * @param $name
      * @return bool
      */
@@ -182,10 +191,10 @@ class Request extends RequestAbstract
         $value = array();
 
         foreach ($params as $param) {
-            if ($this->existParamGet($param)) {
-                $value[] = $_GET[$param];
-            } elseif ($this->existParamPost($param)) {
-                $value[] = $_POST[$param];
+            $valueParam = $this->singleParameter($param);
+
+            if (!empty($valueParam)) {
+                $value[$param] = $valueParam;
             }
         }
 
@@ -215,4 +224,79 @@ class Request extends RequestAbstract
     {
         return isset($_POST[$name]);
     }
+
+    /**
+     * http://www.faqs.org/rfcs/rfc3875.html
+     * "Meta-variables with names beginning with HTTP_ contain values
+     * read from the client request header fields, if the protocol used
+     * is HTTP. The HTTP header field name is converted to upper
+     * case, has all occurrences of - replaced with _ and has HTTP_
+     * prepended to give the meta-variable name."
+     *
+     * @return array
+     */
+    protected function clientHeaders()
+    {
+        $headers = array();
+
+        foreach ($_SERVER as $key => $value) {
+            if (substr($key, 0, 5) != 'HTTP_') {
+                continue;
+            }
+
+            $header = strtoupper(str_replace(' ', '-', str_replace('_', ' ', substr($key, 5))));
+            $headers[$header] = $value;
+        }
+
+        return $headers;
+    }
+
+    /**
+     * @param $header
+     * @return array|bool|mixed
+     */
+    public function headers($header)
+    {
+        if (empty($header)) {
+            return false;
+        }
+
+        if (is_array($header)) {
+            $value = $this->multiHeaders($header);
+        } else {
+            $value = $this->singleHeader($header);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param $header
+     * @return bool|mixed
+     */
+    protected function singleHeader($header)
+    {
+        $header = strtoupper($header);
+        return array_key_exists($header, $this->headersList) ? $this->headersList[$header] : false;
+    }
+
+    /**
+     * @param array $headers
+     * @return array
+     */
+    protected function multiHeaders(array $headers)
+    {
+        $value = array();
+
+        foreach ($headers as $header) {
+            $valueHeader = $this->singleHeader($header);
+
+            if (!empty($valueHeader)) {
+                $value[$header] = $valueHeader;
+            }
+        }
+
+        return $value;
+    }
+
 }
