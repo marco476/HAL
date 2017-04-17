@@ -25,11 +25,6 @@ class Request extends RequestAbstract
     /**
      * @var null
      */
-    static protected $istance = null;
-
-    /**
-     * @var null
-     */
     protected $uri = null;
 
     /**
@@ -38,24 +33,9 @@ class Request extends RequestAbstract
     protected $requestMethod = null;
 
     /**
-     * Singleton
-     *
-     * @return Request|null
+     * Request constructor.
      */
-    public function getIstance()
-    {
-        if (self::$istance === null) {
-            self::$istance = new Request();
-            self::$istance->initialize();
-        }
-
-        return self::$istance;
-    }
-
-    /**
-     * Iniziatize method
-     */
-    protected function initialize()
+    public function __construct()
     {
         $this->uri = !empty($_SERVER['REQUEST_URI']) ? strtolower($_SERVER['REQUEST_URI']) : '/';
         $this->requestMethod = !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : self::GET;
@@ -176,8 +156,8 @@ class Request extends RequestAbstract
             //The parameter exist in GET and in POST.
 
             $value = array(
-                'GET' => $_GET[$name],
-                'POST' => $_POST[$name]
+                self::GET => $_GET[$name],
+                self::POST => $_POST[$name]
             );
         } elseif ($existInGet) {
             //The parameter exist in GET.

@@ -7,18 +7,10 @@ class RequestTest extends TestCase
     /* ----------------------------------
             getUri METHOD TESTS!
        --------------------------------- */
-    public function testGetUriNoIstance()
-    {
-        $expect = null;
-        $request = new Request();
-
-        $this->assertEquals($expect, $request->getUri());
-    }
-
     public function testGetUri()
     {
-        $expect = '/';
-        $request = Request::getIstance();
+        $expect = '/'; //Default value.
+        $request = new Request();
 
         $this->assertEquals($expect, $request->getUri());
     }
@@ -26,19 +18,50 @@ class RequestTest extends TestCase
     /* -------------------------------------
          getRequestMethod METHOD TESTS!
        ------------------------------------ */
-    public function testGetRequestMethodNoIstance()
+    public function testGetRequestMethod()
     {
-        $expect = null;
+        $expect = Request::GET; //Default value.
         $request = new Request();
 
         $this->assertEquals($expect, $request->getRequestMethod());
     }
 
-    public function testGetRequestMethod()
+    /* ---------------------------------
+         parameterInGet METHOD TESTS!
+       -------------------------------- */
+    public function testParameterInGetNoExist()
     {
-        $expect = Request::GET;
-        $request = Request::getIstance();
+        $expect = false;
+        $request = new Request();
 
-        $this->assertEquals($expect, $request->getRequestMethod());
+        $this->assertEquals($expect, $request->parameterInGet('notExist'));
     }
+
+    public function testParameterInGet()
+    {
+        $key = 'toTest';
+        $value = 'myTest';
+
+        $_GET[$key] = $value;
+        $expect = $value;
+        $request = new Request();
+
+        $this->assertEquals($expect, $request->parameterInGet($key));
+    }
+
+    public function testParameterInGetButInPost()
+    {
+        $key = 'toTest';
+        $value = 'myTest';
+
+        $_POST[$key] = $value;
+        $expect = false;
+        $request = new Request();
+
+        $this->assertEquals($expect, $request->parameterInGet($key));
+    }
+
+    /* ---------------------------------
+         parametersInGet METHOD TESTS!
+       -------------------------------- */
 }
