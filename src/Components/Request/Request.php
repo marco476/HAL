@@ -245,6 +245,14 @@ class Request extends RequestAbstract
     }
 
     /**
+     * @return array
+     */
+    public function getHeadersList()
+    {
+        return $this->headersList;
+    }
+
+    /**
      * @param $header
      * @return array|bool|mixed
      */
