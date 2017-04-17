@@ -13,7 +13,7 @@ class Request extends RequestAbstract
      *
      * @var array
      */
-    protected $requestMethodProcessable = array(self::GET, self::POST);
+    protected $requestMethodAccept = array(self::GET, self::POST);
 
     /**
      * List request headers by client
@@ -152,30 +152,40 @@ class Request extends RequestAbstract
     public function parameters($param)
     {
         //Only GET and POST are processable!
-        if (empty($param) || !in_array($this->requestMethod, $this->requestMethodProcessable)) {
+        if (empty($param) || !in_array($this->requestMethod, $this->requestMethodAccept)) {
             return false;
         }
 
-        if (is_array($param)) {
-            $value = $this->multiParameters($param);
-        } else {
-            $value = $this->singleParameter($param);
-        }
-
-        return $value;
+        return is_array($param) ? $this->multiParameters($param) : $this->singleParameter($param);
     }
 
     /**
+     * Return parameter value or false if not exist.
+     * If parameter exist in GET and in POST, return an array with values.
+     *
      * @param $name
-     * @return bool
+     * @return array|bool
      */
     protected function singleParameter($name)
     {
         $value = false;
+        $existInGet = $this->existParamGet($name);
+        $existInPost = $this->existParamPost($name);
 
-        if ($this->existParamGet($name)) {
+        if ($existInGet && $existInPost) {
+            //The parameter exist in GET and in POST.
+
+            $value = array(
+                'GET' => $_GET[$name],
+                'POST' => $_POST[$name]
+            );
+        } elseif ($existInGet) {
+            //The parameter exist in GET.
+
             $value = $_GET[$name];
-        } elseif ($this->existParamPost($name)) {
+        } elseif ($existInPost) {
+            //The parameter exist in POST.
+
             $value = $_POST[$name];
         }
 
@@ -183,6 +193,9 @@ class Request extends RequestAbstract
     }
 
     /**
+     * Return array with parameters value or empty array
+     * if no parameters exist.
+     *
      * @param array $params
      * @return array
      */
@@ -261,13 +274,7 @@ class Request extends RequestAbstract
             return false;
         }
 
-        if (is_array($header)) {
-            $value = $this->multiHeaders($header);
-        } else {
-            $value = $this->singleHeader($header);
-        }
-
-        return $value;
+        return is_array($header) ? $this->multiHeaders($header) : $this->singleHeader($header);
     }
 
     /**
