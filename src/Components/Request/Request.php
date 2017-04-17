@@ -83,7 +83,7 @@ class Request extends RequestAbstract
 
         foreach ($params as $param) {
             if ($this->existParamGet($param)) {
-                $value[] = $_GET[$param];
+                $value[$param] = $_GET[$param];
             }
         }
 
